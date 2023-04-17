@@ -1,0 +1,53 @@
+```gd
+extends EditorSceneImporter
+
+const PMO_PMX: String = "pmx"
+const PMO_PMD: String = "pmd"
+
+func get_extensions() -> Array:
+    return [PMO_PMX, PMO_PMD]
+
+func get_import_flags() -> int:
+    return IMPORT_SCENE
+
+func import_scene(filepath: String, _flags: int, _bake_fps: float) -> Node:
+    var pmo_type = get_pmo_type(filepath)
+    if pmo_type == "":
+        return null
+
+    var new_scene = Spatial.new()
+    var imported_node = handle_mmd_file(pmo_type, filepath)
+    if imported_node != null:
+        new_scene.add_child(imported_node)
+
+    return new_scene
+
+func get_pmo_type(filepath: String) -> String:
+    var ext = filepath.get_extension().to_lower()
+
+    if ext == PMO_PMX or ext == PMO_PMD:
+        return ext
+    else:
+        return ""
+
+func handle_mmd_file(pmo_type: String, filepath: String) -> Node:
+    var mmd_node = MeshInstance.new()
+    mmd_node.name = "MMDModel"
+
+    if pmo_type == PMO_PMX:
+        mmd_node.mesh = load_pmx_model(filepath)
+    elif pmo_type == PMO_PMD:
+        mmd_node.mesh = load_pmd_model(filepath)
+    else:
+        return null
+
+    return mmd_node
+
+# Dummy functions for loading PMX and PMD models
+func load_pmx_model(_filepath: String) -> Mesh:
+    print("Create your PMX model logic here. Replace this function with an actual MMD importer library function.")
+    return CubeMesh.new()
+
+func load_pmd_model(_filepath: String) -> Mesh:
+    print("Create your PMD model logic here. Replace this function with an actual MMD importer library function.")
+    return SphereMesh.new()
